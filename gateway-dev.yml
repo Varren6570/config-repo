@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: main-application
+          uri: lb://mainapplication
+          predicates:
+            - Path=/api/**
+          filters:
+            name: CircuitBreaker
+            args:
+              name: myCircuitBreaker
+              fallbackUri: forward:/fallback
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      myCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
