@@ -1,16 +1,11 @@
 spring:
   cloud:
     gateway:
-      routes:
-        - id: main-application
-          uri: lb://mainapplication
-          predicates:
-            - Path=/api/**
-          filters:
-            name: CircuitBreaker
-            args:
-              name: myCircuitBreaker
-              fallbackUri: forward:/fallback
+      default-filters:
+        - name: CircuitBreaker
+          args:
+            name: defaultCircuitBreaker
+            fallbackUri: forward:/default-fallback
       
       discovery:
         locator:
@@ -20,7 +15,7 @@ spring:
 resilience4j:
   circuitbreaker:
     instances:
-      myCircuitBreaker:
+      defaultCircuitBreaker:
         slidingWindowSize: 5
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
