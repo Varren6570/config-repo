@@ -11,6 +11,11 @@ spring:
             args:
               name: myCircuitBreaker
               fallbackUri: forward:/fallback
+      
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
 
 resilience4j:
   circuitbreaker:
