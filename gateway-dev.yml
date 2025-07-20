@@ -1,24 +1,30 @@
 spring:
   cloud:
     gateway:
-      default-filters:
-        - name: CircuitBreaker
-          args:
-            name: defaultCircuitBreaker
-            fallbackUri: forward:/default-fallback
-      
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
+      mvc:
+        routes:
+          - id: mainapplication
+            uri: lb://mainapplication
+            predicates:
+              - Path=/mainapplication/api/**
+            filters:
+              - RewritePath=/mainapplication/api/(?<segment>.*), /api/${segment}
+              - name: CircuitBreaker
+                args:
+                  id: userCircuitBreaker
+                  fallbackUri: forward:/fallback
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      defaultCircuitBreaker:
-        slidingWindowSize: 5
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        
+    resilience4j:
+      circuitbreaker:
+        configs:
+          default:
+            registerHealthIndicator: true
+            slidingWindowSize: 10
+            failureRateThreshold: 50
+            waitDurationInOpenState: 5000
+        instances:
+          userCircuitBreaker:
+            baseConfig: default
+
 server:
-  port: '8085'
+  port: 8085
